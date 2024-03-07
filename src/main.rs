@@ -31,6 +31,9 @@ fn main() {
     test_valid_move_for_piece('N', "F3", "G4");
     test_valid_move_for_piece('B', "F1", "G7");
     test_valid_move_for_piece('R', "I1", "G2");
+
+    Chessboard::both_side_pieces(&cb);
+    Chessboard::one_side_pieces(&cb, true);
 }
 
 fn test_valid_move_for_piece(p: char, cur_coord: &str, new_coord: &str) {

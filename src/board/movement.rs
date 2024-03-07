@@ -30,6 +30,28 @@ impl Chessboard {
         ]
     }
 
+    pub fn one_side_pieces(&self, white: bool) -> u64 {
+        if white {
+            self.white_bishops
+                & self.white_king
+                & self.white_knights
+                & self.white_pawns
+                & self.white_rooks
+                & self.white_queen
+        } else {
+            self.black_bishops
+                & self.black_king
+                & self.black_knights
+                & self.black_pawns
+                & self.black_rooks
+                & self.black_queen
+        }
+    }
+
+    pub fn both_side_pieces(&self) -> u64 {
+        self.one_side_pieces(true) | self.one_side_pieces(false)
+    }
+
     /// Retrieves the chess piece at a specific position on the chessboard.
     ///
     /// # Arguments
@@ -92,6 +114,30 @@ impl Chessboard {
             'n' => piece::legal_knight(cur_square, new_square),
             'N' => piece::legal_knight(cur_square, new_square),
             _ => false,
+        }
+    }
+
+    /// Get all legal moves this piece is legally able to make
+    ///
+    /// # Arguments
+    ///
+    /// - `square`: The square number where the piece looking to move is
+    ///
+    /// # Returns
+    ///
+    /// A vector of square positions
+    ///
+    /// # Panics
+    ///
+    /// Panics if provided a square out of bounds or does not contain a piece
+    pub fn get_legal_moves(&self, square: i64) -> Vec<i64> {
+        let piece = self
+            .piece_at_position(square)
+            .expect("No piece at this position");
+        match piece {
+            'p' => self.get_pawn_moves(square, false),
+            'P' => self.get_pawn_moves(square, true),
+            _ => Vec::new(),
         }
     }
 
