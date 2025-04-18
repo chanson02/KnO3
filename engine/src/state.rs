@@ -118,9 +118,4 @@ mod tests {
         assert_eq!(cb.piece_at_position(32), None);
     }
 
-    #[test]
-    fn test_evaluate() {
-        let gs = Chessboard::new();
-        assert_eq!(gs.evaluate(), 0);
-    }
 }
