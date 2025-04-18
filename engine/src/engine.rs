@@ -79,3 +79,42 @@ pub fn evaluate_position(board: &Chessboard, is_white: bool) -> f64 {
 
     score
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::chessboard::Chessboard;
+
+    #[test]
+    fn test_evaluate_position_white() {
+        let board = Chessboard::new();
+        let score = evaluate_position(&board, true);
+        assert!(score > 0.0, "Expected positive score for white's initial position");
+    }
+
+    #[test]
+    fn test_evaluate_position_black() {
+        let board = Chessboard::new();
+        let score = evaluate_position(&board, false);
+        assert!(score < 0.0, "Expected negative score for black's initial position");
+    }
+
+    #[test]
+    fn test_evaluate_position_empty_board() {
+        let board = Chessboard::empty();
+        let white_score = evaluate_position(&board, true);
+        let black_score = evaluate_position(&board, false);
+        assert_eq!(white_score, 0.0, "Expected score of 0 for white on an empty board");
+        assert_eq!(black_score, 0.0, "Expected score of 0 for black on an empty board");
+    }
+
+    #[test]
+    fn test_evaluate_position_mirrored_board() {
+        let mut board = Chessboard::empty();
+        board.white_pawns = 0xFF00; // White pawns on rank 2
+        board.black_pawns = 0xFF000000000000; // Black pawns on rank 7
+        let white_score = evaluate_position(&board, true);
+        let black_score = evaluate_position(&board, false);
+        assert_eq!(white_score, -black_score, "Expected mirrored scores for mirrored board");
+    }
+}
