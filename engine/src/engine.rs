@@ -52,8 +52,8 @@ const KING_TABLE: [f64; 64] = [
     0.18, 0.76, 0.76, 0.65, 1.00, 0.53, 0.18, 0.18, 0.53, 1.00, 0.65,
 ];
 
-/// Evaluate the positional value of the board for white or black.
-/// Positive scores favor white, negative scores favor black.
+/// Evaluate the positional score from the perspective of one player.
+/// Positive scores indicate white has a more favorable position.
 pub fn evaluate_position(board: &Chessboard, is_white: bool) -> f64 {
     let mut score = 0.0;
 
