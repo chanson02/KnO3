@@ -84,7 +84,7 @@ pub fn evaluate_position(board: &Chessboard, is_white: bool) -> f64 {
             } else {
                 63 - square as usize // Mirror the table for black pieces.
             };
-            score += multiplier * table[table_index];
+            return if !is_white { score } else { -score };
         }
     }
 
