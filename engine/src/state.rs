@@ -117,5 +117,4 @@ mod tests {
         assert_eq!(cb.piece_at_position(22), Some('n'));
         assert_eq!(cb.piece_at_position(32), None);
     }
-
 }
