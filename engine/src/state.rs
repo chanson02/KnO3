@@ -86,8 +86,10 @@ impl Chessboard {
 
             if piece.is_ascii_uppercase() {
                 result += score;
+                result += evaluate_position(self, true) as i64;
             } else {
                 result -= score;
+                result += evaluate_position(self, false) as i64
             }
         }
 
