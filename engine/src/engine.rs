@@ -53,7 +53,10 @@ pub fn evaluate_position(board: &Chessboard, is_white: bool) -> f64 {
         let table = match piece.to_ascii_uppercase() {
             'P' => &PAWN_TABLE,
             'N' => &KNIGHT_TABLE,
-            // Add cases for bishops, rooks, queens, and kings.
+            'B' => &BISHOP_TABLE,
+            'R' => &ROOK_TABLE,
+            'Q' => &QUEEN_TABLE,
+            'K' => &KING_TABLE,
             _ => continue,
         };
 
