@@ -1,4 +1,6 @@
 use super::Chessboard;
+use crate::engine::evaluate_position;
+
 impl Chessboard {
     pub fn piece_bitboards(&self) -> [(char, u64); 12] {
         [
@@ -81,12 +83,17 @@ impl Chessboard {
                 'Q' => 9,
                 _ => 0,
             } * board.count_ones() as i64;
+
             if piece.is_ascii_uppercase() {
                 result += score;
             } else {
                 result -= score;
             }
         }
+
+        // Add positional evaluation.
+        let positional_score = evaluate_position(self, true) - evaluate_position(self, false);
+        result += positional_score as i64;
 
         result
     }
