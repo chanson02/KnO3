@@ -95,7 +95,7 @@ pub fn evaluate_position(board: &Chessboard, is_white: bool) -> f64 {
 /// `depth` specifies the depth of the search tree.
 /// Returns the best move and its evaluation score.
 pub fn minimax(
-    game_state: &GameState,
+    game_state: &mut GameState,
     depth: u8,
     is_maximizing: bool,
     alpha: f64,
@@ -121,10 +121,10 @@ pub fn minimax(
             if !game_state.is_move_legal(from, to) {
                 continue;
             }
-            let mut new_state = game_state.clone().to_owned();
+            let mut new_state = game_state.clone();
             new_state.move_piece(from, to);
 
-            let (_, score) = minimax(&new_state, depth - 1, !is_maximizing, alpha, beta);
+            let (_, score) = minimax(&mut new_state, depth - 1, !is_maximizing, alpha, beta);
 
             if is_maximizing {
                 if score > best_score {
