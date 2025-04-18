@@ -53,13 +53,17 @@ const KING_TABLE: [f64; 64] = [
 ];
 
 /// Evaluate the positional value of the board for white or black.
+/// Positive scores favor white, negative scores favor black.
 pub fn evaluate_position(board: &Chessboard, is_white: bool) -> f64 {
     let mut score = 0.0;
 
     for (piece, bitboard) in board.piece_bitboards() {
+        // Skip pieces that don't belong to the current player.
         if !is_white && piece.is_ascii_uppercase() || is_white && piece.is_ascii_lowercase() {
             continue;
         }
+
+        // Select the appropriate piece-square table.
         let table = match piece.to_ascii_uppercase() {
             'P' => &PAWN_TABLE,
             'N' => &KNIGHT_TABLE,
@@ -70,8 +74,10 @@ pub fn evaluate_position(board: &Chessboard, is_white: bool) -> f64 {
             _ => continue,
         };
 
+        // Determine the score multiplier based on the player's color.
         let multiplier = if !is_white { 1.0 } else { -1.0 };
 
+        // Calculate the score contribution for each active square.
         for square in position::active_squares(bitboard) {
             let table_index = if is_white {
                 square as usize
@@ -94,7 +100,6 @@ mod tests {
     fn test_evaluate_position_white() {
         let board = Chessboard::new();
         let score = evaluate_position(&board, true);
-        print!("White score: {}", score);
         assert!(
             score > 0.0,
             "Expected positive score for white's initial position"
@@ -105,7 +110,6 @@ mod tests {
     fn test_evaluate_position_black() {
         let board = Chessboard::new();
         let score = evaluate_position(&board, false);
-        print!("Black score: {}", score);
         assert!(
             score < 0.0,
             "Expected negative score for black's initial position"
