@@ -33,6 +33,14 @@ impl GameState {
         Ok(())
     }
 
+    pub fn is_move_legal(&mut self, from: u8, to: u8) -> bool {
+        let possible_moves = self.possible_moves(from);
+        if 1 << to & possible_moves == 0 {
+            return false;
+        }
+        true
+    }
+
     /// Move squares in iterator until a piece is hit
     fn move_until_piece<I>(&self, range: I, white: bool) -> u64
     where
