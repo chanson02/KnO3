@@ -89,14 +89,20 @@ mod tests {
     fn test_evaluate_position_white() {
         let board = Chessboard::new();
         let score = evaluate_position(&board, true);
-        assert!(score > 0.0, "Expected positive score for white's initial position");
+        assert!(
+            score > 0.0,
+            "Expected positive score for white's initial position"
+        );
     }
 
     #[test]
     fn test_evaluate_position_black() {
         let board = Chessboard::new();
         let score = evaluate_position(&board, false);
-        assert!(score < 0.0, "Expected negative score for black's initial position");
+        assert!(
+            score < 0.0,
+            "Expected negative score for black's initial position"
+        );
     }
 
     #[test]
@@ -104,8 +110,14 @@ mod tests {
         let board = Chessboard::empty();
         let white_score = evaluate_position(&board, true);
         let black_score = evaluate_position(&board, false);
-        assert_eq!(white_score, 0.0, "Expected score of 0 for white on an empty board");
-        assert_eq!(black_score, 0.0, "Expected score of 0 for black on an empty board");
+        assert_eq!(
+            white_score, 0.0,
+            "Expected score of 0 for white on an empty board"
+        );
+        assert_eq!(
+            black_score, 0.0,
+            "Expected score of 0 for black on an empty board"
+        );
     }
 
     #[test]
@@ -115,6 +127,9 @@ mod tests {
         board.black_pawns = 0xFF000000000000; // Black pawns on rank 7
         let white_score = evaluate_position(&board, true);
         let black_score = evaluate_position(&board, false);
-        assert_eq!(white_score, -black_score, "Expected mirrored scores for mirrored board");
+        assert_eq!(
+            white_score, -black_score,
+            "Expected mirrored scores for mirrored board"
+        );
     }
 }
