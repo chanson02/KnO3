@@ -154,6 +154,17 @@ mod tests {
     }
 
     #[test]
+    fn test_evaluate_position_new_board() {
+        let board = Chessboard::new();
+        let white_score = evaluate_position(&board, true);
+        let black_score = evaluate_position(&board, false);
+        assert_eq!(
+            white_score, -black_score,
+            "Expected mirrored scores for new board"
+        );
+    }
+
+    #[test]
     fn test_evaluate_position_mirrored_board() {
         let mut board = Chessboard::empty();
         board.white_pawns = 0xFF00; // White pawns on rank 2
