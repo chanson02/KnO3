@@ -36,6 +36,7 @@ pub fn evaluate_position(board: &Chessboard, is_white: bool) -> f64 {
 }
 
 /// Minimax algorithm to determine the best move.
+#[allow(dead_code)]
 pub fn minimax(
     game_state: &mut GameState,
     depth: u8,
