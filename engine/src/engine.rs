@@ -100,12 +100,14 @@ pub fn evaluate_position(board: &Chessboard, is_white: bool) -> f64 {
         // Calculate the score contribution for each active square.
         for square in position::active_squares(bitboard) {
             let table_index = if is_white {
-                square as usize
+                square
             } else {
-                63 - square as usize // Mirror the table for black pieces.
-            };
-            return if !is_white { score } else { -score };
+                63 - square // Mirror the table for black pieces.
+            } as usize;
+            let piece_score = table[table_index] * multiplier;
+            score += piece_score;
         }
+        return if !is_white { score } else { -score };
     }
 
     score
