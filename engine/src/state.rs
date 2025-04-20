@@ -117,4 +117,44 @@ mod tests {
         assert_eq!(cb.piece_at_position(22), Some('n'));
         assert_eq!(cb.piece_at_position(32), None);
     }
+
+    #[test]
+    fn test_evaluate_initial_position() {
+        let cb = Chessboard::new();
+        let evaluation = cb.evaluate();
+        assert_eq!(evaluation, 0, "Initial position should be balanced.");
+    }
+
+    #[test]
+    fn test_evaluate_white_advantage() {
+        let cb = Chessboard {
+            white_queen: 0x0000000000000008,
+            black_queen: 0x0000000000000000,
+            ..Chessboard::empty()
+        };
+        let evaluation = cb.evaluate();
+        assert!(evaluation > 0, "White should have an advantage with an extra queen.");
+    }
+
+    #[test]
+    fn test_evaluate_black_advantage() {
+        let cb = Chessboard {
+            white_queen: 0x0000000000000000,
+            black_queen: 0x0800000000000000,
+            ..Chessboard::empty()
+        };
+        let evaluation = cb.evaluate();
+        assert!(evaluation < 0, "Black should have an advantage with an extra queen.");
+    }
+
+    #[test]
+    fn test_evaluate_positional_advantage() {
+        let cb = Chessboard {
+            white_pawns: 0x000000000000FF00, // Pawns advanced to rank 3
+            black_pawns: 0x00FF000000000000, // Pawns on rank 7
+            ..Chessboard::empty()
+        };
+        let evaluation = cb.evaluate();
+        assert!(evaluation > 0, "White should have a positional advantage with advanced pawns.");
+    }
 }
