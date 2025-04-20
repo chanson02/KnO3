@@ -133,7 +133,10 @@ mod tests {
             ..Chessboard::empty()
         };
         let evaluation = cb.evaluate();
-        assert!(evaluation > 0, "White should have an advantage with an extra queen.");
+        assert!(
+            evaluation > 0,
+            "White should have an advantage with an extra queen."
+        );
     }
 
     #[test]
@@ -144,7 +147,10 @@ mod tests {
             ..Chessboard::empty()
         };
         let evaluation = cb.evaluate();
-        assert!(evaluation < 0, "Black should have an advantage with an extra queen.");
+        assert!(
+            evaluation < 0,
+            "Black should have an advantage with an extra queen."
+        );
     }
 
     #[test]
@@ -155,6 +161,9 @@ mod tests {
             ..Chessboard::empty()
         };
         let evaluation = cb.evaluate();
-        assert!(evaluation > 0, "White should have a positional advantage with advanced pawns.");
+        assert!(
+            evaluation > 0,
+            "White should have a positional advantage with advanced pawns."
+        );
     }
 }
