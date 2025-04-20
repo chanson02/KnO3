@@ -30,10 +30,12 @@ pub fn evaluate_position(board: &Chessboard, is_white: bool) -> f64 {
             let piece_score = table[table_index] * multiplier;
             score += piece_score;
         }
-        return if !is_white { score } else { -score };
     }
-
-    score
+    if !is_white {
+        score
+    } else {
+        -score
+    }
 }
 
 #[cfg(test)]
