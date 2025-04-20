@@ -2,6 +2,7 @@ use crate::position::rank_file_to_square;
 use std::cmp::PartialEq;
 use std::fmt::{self, Display};
 
+#[derive(Clone)]
 pub struct Chessboard {
     pub black_pawns: u64,
     pub black_rooks: u64,

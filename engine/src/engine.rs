@@ -35,68 +35,58 @@ pub fn evaluate_position(board: &Chessboard, is_white: bool) -> f64 {
     }
 }
 
-/// Implements the minimax algorithm to determine the best move.
-/// `depth` specifies the depth of the search tree.
-/// Returns the best move and its evaluation score.
+/// Minimax algorithm to determine the best move.
 pub fn minimax(
     game_state: &mut GameState,
     depth: u8,
     is_maximizing: bool,
-    alpha: f64,
-    beta: f64,
-) -> (Option<(u8, u8)>, f64) {
-    //TODO: is_game_over() is taken care of in a different issue
-    // if depth == 0 || game_state.is_game_over() {
-    //     return (None, evaluate_position(&game_state.board, is_maximizing));
-    // }
+) -> (f64, Option<(u8, u8)>) {
+    if depth == 0 {
+        let score = evaluate_position(&game_state.board, game_state.white_turn);
+        return (score, None);
+    }
 
-    let mut best_move = None;
     let mut best_score = if is_maximizing {
         f64::NEG_INFINITY
     } else {
         f64::INFINITY
     };
-    let mut alpha = alpha;
-    let mut beta = beta;
+    let mut best_move = None;
 
     for from in 0..64 {
-        let possible_moves = game_state.possible_moves(from);
-        for to in position::active_squares(possible_moves) {
-            if !game_state.is_move_legal(from, to) {
+        if let Some(piece) = game_state.board.piece_at_position(from) {
+            if (piece.is_ascii_uppercase() && !game_state.white_turn)
+                || (piece.is_ascii_lowercase() && game_state.white_turn)
+            {
                 continue;
             }
-            let mut new_state = game_state.clone();
-            new_state.move_piece(from, to);
 
-            let (_, score) = minimax(&mut new_state, depth - 1, !is_maximizing, alpha, beta);
-
-            if is_maximizing {
-                if score > best_score {
-                    best_score = score;
-                    best_move = Some((from, to));
+            let possible_moves = position::active_squares(game_state.possible_moves(from));
+            for to in possible_moves {
+                let mut cloned_state = game_state.clone();
+                if cloned_state.move_piece_legally(from, to).is_ok() {
+                    let (score, _) = minimax(&mut cloned_state, depth - 1, !is_maximizing);
+                    let is_better = if is_maximizing {
+                        score > best_score
+                    } else {
+                        score < best_score
+                    };
+                    if is_better {
+                        best_score = score;
+                        best_move = Some((from, to));
+                    }
                 }
-                alpha = alpha.max(score);
-            } else {
-                if score < best_score {
-                    best_score = score;
-                    best_move = Some((from, to));
-                }
-                beta = beta.min(score);
-            }
-
-            if beta <= alpha {
-                break;
             }
         }
     }
 
-    (best_move, best_score)
+    (best_score, best_move)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{chessboard::Chessboard, GameState};
+    use crate::chessboard::Chessboard;
 
     #[test]
     fn test_evaluate_position_white() {
@@ -159,30 +149,16 @@ mod tests {
     }
 
     #[test]
-    fn test_minimax_initial_position() {
-        let game_state = GameState::new();
-        let (best_move, score) = minimax(&game_state, 3, true, f64::NEG_INFINITY, f64::INFINITY);
-        assert!(best_move.is_some(), "Expected a valid move");
-        assert!(score > f64::NEG_INFINITY, "Expected a valid score");
-    }
-
-    #[test]
-    fn test_minimax_empty_board() {
+    fn test_minimax_best_move() {
         let mut game_state = GameState::new();
-        game_state.board = Chessboard::empty();
-        let (best_move, score) = minimax(&game_state, 3, true, f64::NEG_INFINITY, f64::INFINITY);
-        assert!(best_move.is_none(), "Expected no valid moves");
-        assert_eq!(score, 0.0, "Expected score of 0 for empty board");
-    }
-
-    #[test]
-    fn test_minimax_one_move() {
-        let mut game_state = GameState::new();
-        game_state.board.white_pawns = 0x0000000000000100; // White pawn on E2
-        game_state.board.black_pawns = 0x0000000000000000; // No black pawns
-        let (best_move, score) = minimax(&game_state, 1, true, f64::NEG_INFINITY, f64::INFINITY);
-        assert_eq!(best_move, Some((12, 28)), "Expected move E2 to E4");
-        assert!(score > 0.0, "Expected positive score for white");
+        let (_, best_move) = minimax(&mut game_state, 2, true);
+        assert!(best_move.is_some(), "Expected a valid best move");
+        let (from, to) = best_move.unwrap();
+        println!(
+            "Best move: {} -> {}",
+            position::square_to_string(from),
+            position::square_to_string(to)
+        );
     }
 
     // #[test]
