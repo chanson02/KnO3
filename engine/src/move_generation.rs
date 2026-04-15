@@ -108,42 +108,38 @@ impl GameState {
 
     fn possible_pawn_moves(&self, from: u8, white: bool) -> u64 {
         let mut result = 0;
-        let rank = from / 8;
-        let direction = if white { 1 } else { -1 };
+        let rank = (from / 8) as i8;
+        let file = (from % 8) as i8;
+        let direction: i8 = if white { 1 } else { -1 };
         let initial_rank = if white { rank == 1 } else { rank == 6 };
-
-        let out_of_bounds = (direction == 1 && from > 55) || (direction == -1 && from < 8);
-        if out_of_bounds {
+        let next_rank = rank + direction;
+        if !(0..8).contains(&next_rank) {
             return result;
         }
 
         let opps = self.board.one_side_pieces(!white);
         let taken = self.board.both_side_pieces();
-
-        let left_diag = (from as i32 + 7 * direction) as u8;
-        let forward = from as i32 + 8 * direction;
-        let right_diag = (from as i32 + 9 * direction) as u8;
+        let forward = (next_rank * 8 + file) as u8;
 
         if taken & (1 << forward) == 0 {
             result |= 1 << forward;
             if initial_rank {
-                let double = forward + 8 * direction;
+                let double = ((rank + 2 * direction) * 8 + file) as u8;
                 if taken & (1 << double) == 0 {
                     result |= 1 << double;
                 }
             }
         }
 
-        let opp_left = opps & (1 << left_diag) != 0;
-        let en_passant_left = !initial_rank && left_diag == self.en_passant;
-        if opp_left || en_passant_left {
-            result |= 1 << left_diag;
-        }
-
-        let opp_right = opps & (1 << right_diag) != 0;
-        let en_passant_right = !initial_rank && right_diag == self.en_passant;
-        if opp_right || en_passant_right {
-            result |= 1 << right_diag;
+        for file_offset in [-1, 1] {
+            let target_file = file + file_offset;
+            if !(0..8).contains(&target_file) {
+                continue;
+            }
+            let target = (next_rank * 8 + target_file) as u8;
+            if opps & (1 << target) != 0 || (!initial_rank && target == self.en_passant) {
+                result |= 1 << target;
+            }
         }
 
         result
@@ -281,12 +277,29 @@ impl GameState {
 
     fn possible_king_moves_ignore_check(&self, from: u8, white: bool) -> u64 {
         let mut result = 0;
-        let directions: [i8; 8] = [-1, 1, -7, 7, -8, 8, -9, 9];
+        let rank = (from / 8) as i8;
+        let file = (from % 8) as i8;
+        let directions: [(i8, i8); 8] = [
+            (-1, -1),
+            (-1, 0),
+            (-1, 1),
+            (0, -1),
+            (0, 1),
+            (1, -1),
+            (1, 0),
+            (1, 1),
+        ];
         let own = self.board.one_side_pieces(white);
 
-        for &direction in &directions {
-            let target = from as i8 + direction;
-            if (0..=63).contains(&target) && own & (1 << target) == 0 {
+        for &(d_rank, d_file) in &directions {
+            let target_rank = rank + d_rank;
+            let target_file = file + d_file;
+            if !(0..8).contains(&target_rank) || !(0..8).contains(&target_file) {
+                continue;
+            }
+
+            let target = (target_rank * 8 + target_file) as u8;
+            if own & (1 << target) == 0 {
                 result |= 1 << target;
             }
         }
@@ -500,6 +513,24 @@ mod tests {
         assert_eq!(gs.possible_pawn_moves(1, true), 0, "Moved behind own piece");
         gs.board.black_pawns |= 1 << 8; // place a black pawn on 8
         assert_eq!(gs.possible_pawn_moves(1, true), 1 << 8, "Failed capture");
+
+        gs.board = Chessboard::empty();
+        gs.board.white_pawns = 1 << 8;
+        gs.board.black_pawns = 1 << 15 | 1 << 17;
+        assert_eq!(
+            gs.possible_pawn_moves(8, true),
+            1 << 16 | 1 << 24 | 1 << 17,
+            "White pawn wrapped across board edge"
+        );
+
+        gs.board = Chessboard::empty();
+        gs.board.black_pawns = 1 << 55;
+        gs.board.white_pawns = 1 << 40 | 1 << 46;
+        assert_eq!(
+            gs.possible_pawn_moves(55, false),
+            1 << 47 | 1 << 39 | 1 << 46,
+            "Black pawn wrapped across board edge"
+        );
     }
 
     #[test]
@@ -627,6 +658,14 @@ mod tests {
             gs.possible_king_moves(34, true),
             1 << 33 | 1 << 35 | 1 << 27 | 1 << 26 | 1 << 25,
             "Failed normal move"
+        );
+
+        gs.board = Chessboard::empty();
+        gs.castling = 0;
+        assert_eq!(
+            gs.possible_king_moves_ignore_check(7, true),
+            1 << 6 | 1 << 14 | 1 << 15,
+            "King wrapped across board edge"
         );
     }
 
