@@ -118,6 +118,12 @@ impl Chessboard {
     }
 }
 
+impl Default for Chessboard {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl PartialEq for Chessboard {
     /// Would've been easier to compare FEN's here, but this is faster
     fn eq(&self, other: &Self) -> bool {

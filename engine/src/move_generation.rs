@@ -22,8 +22,17 @@ impl GameState {
 
         // Clear enemy pawn if en passanted
         if piece_type == 'p' && to == self.en_passant {
-            let enemy_pawns = if self.white_turn { self.board.piece_bitboard('p').expect("Black pawns") } else { self.board.piece_bitboard('P').expect("White pawns") };
-            *enemy_pawns &= !(1 << if self.white_turn { to.saturating_sub(8) } else { to + 8 });
+            let enemy_pawns = if self.white_turn {
+                self.board.piece_bitboard('p').expect("Black pawns")
+            } else {
+                self.board.piece_bitboard('P').expect("White pawns")
+            };
+            *enemy_pawns &= !(1
+                << if self.white_turn {
+                    to.saturating_sub(8)
+                } else {
+                    to + 8
+                });
         }
 
         self.en_passant = 255;
@@ -35,7 +44,7 @@ impl GameState {
         *from_piece_bitboard |= 1 << to; // Set position landing on
 
         // check en passant
-        if piece.to_ascii_lowercase() == 'p' {
+        if piece.eq_ignore_ascii_case(&'p') {
             let en_passant_square = (from + to) / 2;
             if from + 8 == en_passant_square || from.saturating_sub(8) == en_passant_square {
                 self.en_passant = en_passant_square;
@@ -825,7 +834,10 @@ mod tests {
         gs.board.white_pawns |= 1 << 33;
         gs.en_passant = 40;
         gs.move_piece(33, 40);
-        assert!(gs.board.black_pawns & (1 << 32) == 0, "En Passanted pawn not cleared after capture");
+        assert!(
+            gs.board.black_pawns & (1 << 32) == 0,
+            "En Passanted pawn not cleared after capture"
+        );
     }
 
     #[test]
@@ -844,7 +856,10 @@ mod tests {
             Some('P'),
             "Pawn does not exist in new position"
         );
-        assert!(!gs.white_turn, "Turn did not change to black after white moved");
+        assert!(
+            !gs.white_turn,
+            "Turn did not change to black after white moved"
+        );
 
         gs.white_turn = true;
         let illegal_move = gs.move_piece_legally(28, 12);

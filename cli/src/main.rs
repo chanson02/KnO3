@@ -104,18 +104,12 @@ fn move_piece(move_string: &str, game: &mut GameState) -> Result<(), String> {
 
     let from = match coords.next() {
         None => return Err("Invalid move format. Start position not supplied".to_string()),
-        Some(coord) => match position::string_to_square(coord) {
-            Err(e) => return Err(e),
-            Ok(square) => square,
-        },
+        Some(coord) => position::string_to_square(coord)?,
     };
 
     let to = match coords.next() {
         None => return Err("Invalid move format. End position not supplied".to_string()),
-        Some(coord) => match position::string_to_square(coord) {
-            Err(e) => return Err(e),
-            Ok(square) => square,
-        },
+        Some(coord) => position::string_to_square(coord)?,
     };
 
     game.move_piece_legally(from, to)

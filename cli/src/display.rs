@@ -14,7 +14,7 @@ fn find_fg(p: char) -> Color {
 
 #[rustfmt::skip]
 fn find_bkgnd(rank: u8, file: u8) -> Color {
-    if (rank + file) % 2 == 0
+    if (rank + file).is_multiple_of(2)
         { Color::Rgb { r: 255, g: 206, b: 158 } }
     else
         { Color::Rgb { r: 190, g: 140, b: 170 } }
